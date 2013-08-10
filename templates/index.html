@@ -25,7 +25,29 @@
 		jQuery(".btnPlayRadio").click(function(evt) {
 			jQuery.post("current", jQuery(evt.target).attr('data-radio-station'));
 		});
+	
+		selectLocalLibraryPath();
 	});
+
+	function selectLocalLibraryPath(path)
+	{
+		if (path && path.match(".*\.mp3\$"))
+			jQuery.post("current", path);
+		else
+			jQuery.getJSON("library/local/" + (path ? path + '/' : ''), function(data) {
+				jQuery('#localLibrary li').remove();
+				for (var i = 0; i < data.length; i++)
+					jQuery("#localLibrary").append('<li data-theme="c" data-path="' + (path? path + '/' : '') + data[i] + '"><a href="#">' + data[i] + '</a></li>');
+
+				var back = path? (path.indexOf('/') == -1? '' : path.substring(0, path.lastIndexOf('/'))) : null;
+				if (back != null) jQuery("#localLibrary").append('<li data-theme="c" data-path="' + back + '"><a href="#">Back</a></li>');
+
+				jQuery('#localLibrary li').click(function(evt) {
+					selectLocalLibraryPath(jQuery(evt.currentTarget).attr('data-path'));
+				});
+				jQuery('#localLibrary').listview('refresh');
+			});
+	}
   </script>
    
 </head>
@@ -43,15 +65,17 @@
             Pause
         </a>
         <div data-role="collapsible-set">
-            <div data-role="collapsible">
+            <div data-role="collapsible" data-collapsed="true">
                 <h3>Internet Radio</h3>
                 <ul data-role="listview" data-divider-theme="b" data-inset="true">
+                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://scfire-d15.websys.aol.com:80/radio_paradise_mp3_128kbps">Radio Paradise</a></li>
                     <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://voxsc1.somafm.com:8850">Soma FM: Suburbs of goa</a></li>
                     <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://mp4.somafm.com:8800">Soma FM: Lush</a></li>
                 </ul>
             </div>
-            <div data-role="collapsible" data-collapsed="false">
+            <div data-role="collapsible" data-collapsed="true">
                 <h3>Local Library</h3>
+                <ul data-role="listview" data-divider-theme="b" data-inset="true" id="localLibrary"></ul>
             </div>
         </div>
     </div>

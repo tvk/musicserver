@@ -1,10 +1,13 @@
-import web, pygst, gst, logging
+import os, web, pygst, gst, logging
         
 urls = (
 	'/', 'index',
     '/current', 'current',
-	'/control/(play|pause)', 'control'
+	'/control/(play|pause)', 'control',
+	'/library/local/(.*)', 'locallibrary'
 )
+
+musicdir = '/home/thomas/music/'
 
 app = web.application(urls, globals())
 render = web.template.render('templates/')
@@ -18,13 +21,19 @@ class current:
     def GET(self):
        	return 'Ok'
     def POST(self):
-		return player.play(web.data())
+		return player.play(web.data() if web.data().startswith('http://') else 'file://' + musicdir + '/' + web.data());
 
 class control:
 	def POST(self, name):
 		logging.debug('Control: ' + name)
 		if name == 'play' and player.current is not None: player.play(player.current)
 		if name == 'pause': player.pause()
+
+class locallibrary:
+	def GET(self, path):
+		logging.debug('Request to local library: ' + path);
+		return ('["' + reduce(lambda x, y: x + '","' + y , sorted(os.listdir(musicdir + path))) + '"]') if os.listdir(musicdir + path) else '[]';
+		
 
 class player:
 	pipeline = None
