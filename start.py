@@ -1,10 +1,11 @@
-import os, web, pygst, gst, logging
+import os, web, logging, shoutcast, player
         
 urls = (
 	'/', 'index',
     '/current', 'current',
 	'/control/(play|pause)', 'control',
-	'/library/local/(.*)', 'locallibrary'
+	'/library/local/(.*)', 'locallibrary',
+	'/library/shoutcast/(.*)', 'shoutcastlibrary'
 )
 
 musicdir = '/home/thomas/music/'
@@ -12,6 +13,8 @@ musicdir = '/home/thomas/music/'
 app = web.application(urls, globals())
 render = web.template.render('templates/')
 logging.basicConfig(level=logging.DEBUG)
+
+player = player.Player()
 
 class index:
 	def GET(self):
@@ -33,37 +36,11 @@ class locallibrary:
 	def GET(self, path):
 		logging.debug('Request to local library: ' + path);
 		return ('["' + reduce(lambda x, y: x + '","' + y , sorted(os.listdir(musicdir + path))) + '"]') if os.listdir(musicdir + path) else '[]';
-		
 
-class player:
-	pipeline = None
-	current = None
-	def play(self, url):
-		logging.debug('Playing ' + url)
-		self.pause()
-		self.pipeline = self.createPipeline(url)
-		self.current = url;
-		self.pipeline.set_state(gst.STATE_PLAYING)
-	def pause(self):
-		logging.debug('Pausing')
-		if (self.pipeline is not None):
-			self.pipeline.set_state(gst.STATE_PAUSED)
-
-	def createPipeline(self, url):
-		pipeline = gst.Pipeline("pipeline_default")
-		source = gst.element_factory_make("gnomevfssrc", "source")
-		source.set_property("location", url)
-		mad = gst.element_factory_make("mad")
-		audioconvert = gst.element_factory_make("audioconvert")
-		audioresample = gst.element_factory_make("audioresample")
-		sink = gst.element_factory_make("alsasink")
-
-		pipeline.add(source, mad, audioconvert, audioresample, sink)
-		gst.element_link_many(source, mad, audioconvert, audioresample, sink)
-		return pipeline
-		
-player = player()
-
+class shoutcastlibrary:
+	def GET(self, search):
+		logging.debug('Request to shoutcast: ' + search);
+		return shoutcast.search(search)
 
 if __name__ == "__main__":
     app.run()
