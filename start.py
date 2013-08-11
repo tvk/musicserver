@@ -10,11 +10,10 @@ urls = (
 
 musicdir = '/home/thomas/music/'
 
+logging.basicConfig(level=logging.DEBUG)
+player = player.Player()
 app = web.application(urls, globals())
 render = web.template.render('templates/')
-logging.basicConfig(level=logging.DEBUG)
-
-player = player.Player()
 
 class index:
 	def GET(self):

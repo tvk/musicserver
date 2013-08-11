@@ -5,7 +5,7 @@
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <title></title>
+  <title>Music::Remote Control</title>
   
   <link rel="stylesheet" href="https://d10ajoocuyu32n.cloudfront.net/mobile/1.3.1/jquery.mobile-1.3.1.min.css">
   
@@ -22,12 +22,35 @@
 		jQuery("#btnPause").click(function() {
 			jQuery.post("control/pause");
 		});
-		jQuery(".btnPlayRadio").click(function(evt) {
+		jQuery("#searchShoutcast").keyup(function(evt) {
+			if(evt.keyCode == 13) 
+			{
+				jQuery.mobile.loading( 'show', {text: 'Searching...', textVisible: true });
+
+				jQuery('#shoutcastResult li').remove();
+				jQuery.getJSON("http://pi:8080/library/shoutcast/" + jQuery("#searchShoutcast").val(), function(data) {
+					for (var i = 0; i < data.length; i++)
+						jQuery("#shoutcastResult").append('<li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="' + data[i]['url'] + '">' + data[i]['title'] + '</a></li>');
+					jQuery("#shoutcastResult").append('<li data-theme="c"><a href="#" class="btnPlayRadio">More</a></li>');
+					jQuery('#shoutcastResult').listview('refresh');				
+					initRadioStationButtons();
+
+					jQuery.mobile.loading( 'hide');
+				});
+			}
+		});
+
+		selectLocalLibraryPath();
+		initRadioStationButtons();
+	});
+
+	function initRadioStationButtons()
+	{
+		jQuery('a.btnPlayRadio').unbind('click');
+		jQuery("a.btnPlayRadio").click(function(evt) {
 			jQuery.post("current", jQuery(evt.target).attr('data-radio-station'));
 		});
-	
-		selectLocalLibraryPath();
-	});
+	}
 
 	function selectLocalLibraryPath(path)
 	{
@@ -54,30 +77,35 @@
 <body>
 <!-- Home -->
 <div data-role="page" id="page1">
-    <div data-theme="a" data-role="header">
-        <h3>Music</h3>
-    </div>
+    <div data-theme="a" data-role="header"><h3>Music::Remote Control</h3></div>
     <div data-role="content">
-        <a data-role="button" data-inline="true" href="#" data-icon="arrow-r" data-iconpos="left" id="btnPlay">
-            Play
-        </a>
-        <a data-role="button" data-inline="true" href="#" data-icon="delete" data-iconpos="left" id="btnPause">
-            Pause
-        </a>
+
+        <a data-role="button" data-inline="true" href="#" data-icon="arrow-r" data-iconpos="left" id="btnPlay">Play</a>
+        <a data-role="button" data-inline="true" href="#" data-icon="delete" data-iconpos="left" id="btnPause">Pause</a>
+
         <div data-role="collapsible-set">
+
             <div data-role="collapsible" data-collapsed="true">
-                <h3>Internet Radio</h3>
+                <h3>Internet Radio Presets</h3>
                 <ul data-role="listview" data-divider-theme="b" data-inset="true">
                     <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://scfire-d15.websys.aol.com:80/radio_paradise_mp3_128kbps">Radio Paradise</a></li>
                     <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://voxsc1.somafm.com:8850">Soma FM: Suburbs of goa</a></li>
                     <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://mp4.somafm.com:8800">Soma FM: Lush</a></li>
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://yp.shoutcast.com/sbin/tunein-station.pls?id=1404847">Test</a></li>
                 </ul>
             </div>
+
+            <div data-role="collapsible" data-collapsed="true">
+                <h3>Internet Radio Search</h3>
+				<label for="search-mini"></label>
+				<input type="search" name="search-mini" id="searchShoutcast" value="" />
+	            <ul data-role="listview" data-divider-theme="b" data-inset="true" id="shoutcastResult"></ul>
+            </div>
+
             <div data-role="collapsible" data-collapsed="true">
                 <h3>Local Library</h3>
                 <ul data-role="listview" data-divider-theme="b" data-inset="true" id="localLibrary"></ul>
             </div>
+
         </div>
     </div>
 </div>
