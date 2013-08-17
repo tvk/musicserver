@@ -9,7 +9,7 @@ urls = (
 	'/library/shoutcast/(.*)', 'shoutcastlibrary'
 )
 
-musicdir = '/home/thomas/music/'
+musicdir = '/home/thomas/music/storage/'
 
 logging.basicConfig(level=logging.DEBUG)
 player = player.Player()
