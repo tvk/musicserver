@@ -1,9 +1,10 @@
-import os, web, logging, shoutcast, player
+import os, web, logging, shoutcast, player, threading, gobject
         
 urls = (
 	'/', 'index',
-    '/current', 'current',
+	'/current', 'current',
 	'/control/(play|pause)', 'control',
+	'/level', 'level',
 	'/library/local/(.*)', 'locallibrary',
 	'/library/shoutcast/(.*)', 'shoutcastlibrary'
 )
@@ -16,8 +17,7 @@ app = web.application(urls, globals())
 render = web.template.render('templates/')
 
 class index:
-	def GET(self):
-		return render.index()
+	def GET(self): return render.index()
 
 class current:        
     def GET(self):
@@ -31,6 +31,9 @@ class control:
 		if name == 'play' and player.current is not None: player.play(player.current)
 		if name == 'pause': player.pause()
 
+class level:
+	def GET(self): return player.get_level()
+
 class locallibrary:
 	def GET(self, path):
 		logging.debug('Request to local library: ' + path);
@@ -42,4 +45,4 @@ class shoutcastlibrary:
 		return shoutcast.search(search)
 
 if __name__ == "__main__":
-    app.run()
+	app.run()

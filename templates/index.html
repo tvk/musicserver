@@ -28,7 +28,7 @@
 				jQuery.mobile.loading( 'show', {text: 'Searching...', textVisible: true });
 
 				jQuery('#shoutcastResult li').remove();
-				jQuery.getJSON("http://pi:8080/library/shoutcast/" + jQuery("#searchShoutcast").val(), function(data) {
+				jQuery.getJSON("library/shoutcast/" + jQuery("#searchShoutcast").val(), function(data) {
 					for (var i = 0; i < data.length; i++)
 						jQuery("#shoutcastResult").append('<li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="' + data[i]['url'] + '">' + data[i]['title'] + '</a></li>');
 					jQuery("#shoutcastResult").append('<li data-theme="c"><a href="#" class="btnPlayRadio">More</a></li>');
