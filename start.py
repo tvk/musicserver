@@ -23,16 +23,13 @@ class current:
     def GET(self):
        	return 'Ok'
     def POST(self):
-		return player.play(web.data() if web.data().startswith('http://') else 'file://' + musicdir + '/' + web.data());
+		return player.play(web.data() if web.data().startswith('http://') else musicdir + '/' + web.data());
 
 class control:
 	def POST(self, name):
 		logging.debug('Control: ' + name)
 		if name == 'play' and player.current is not None: player.play(player.current)
 		if name == 'pause': player.pause()
-
-class level:
-	def GET(self): return player.get_level()
 
 class locallibrary:
 	def GET(self, path):
