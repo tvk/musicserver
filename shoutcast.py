@@ -1,5 +1,6 @@
-import requests, re
+import requests, logging
 from HTMLParser import HTMLParser
+
 
 class MyHTMLParser(HTMLParser):
 	json = ''
@@ -13,16 +14,27 @@ class MyHTMLParser(HTMLParser):
 		self.json += '{' if len(self.json) == 0 else ',{';
 		for name, value in attrs:
 			if (name == 'title'): self.json += '"title": "' + value + '",';
-			if (name == 'href'): self.json += '"url": "' + self.parse_playlist(value) + '",';
+			if (name == 'href'): self.json += '"url": "' + value + '",';
 		self.json += '"u":"u"}'
 				
-	def parse_playlist(self, url):
-		return re.search('File.=(.*)', requests.get(url).text).group(1)
+class Shoutcast:
 
-def search(search):
-	response = requests.get(r'http://www.shoutcast.com/search-ajax/' + search, data='strIndex=0&count=30&ajax=true')
+	lastSearchQuery = ''
+	lastSearchIndex = 0
+  
+	def search(self, search):
+	  
+		if (search is not self.lastSearchQuery):
+			self.lastSearchIndex = 0
+			self.lastSearchQuery = search
+		
+		logging.debug("Requesting " + self.lastSearchQuery + ", index: " + str(self.lastSearchIndex));
+		response = requests.post(r'http://www.shoutcast.com/search-ajax/' + self.lastSearchQuery, data='strIndex=' + str(self.lastSearchIndex) + '&count=10&ajax=true')
+		parser = MyHTMLParser()
+		parser.feed(response.text)
+		return '[' + parser.json + ']'
 
-	parser = MyHTMLParser()
-	parser.feed(response.text)
-	return '[' + parser.json + ']'
+	def searchMore(self):
+		self.lastSearchIndex += 10
+		return self.search(self.lastSearchQuery)
 

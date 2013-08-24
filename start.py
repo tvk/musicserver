@@ -15,6 +15,7 @@ logging.basicConfig(level=logging.DEBUG)
 player = player.Player()
 app = web.application(urls, globals())
 render = web.template.render('templates/')
+shoutcast = shoutcast.Shoutcast()
 
 class index:
 	def GET(self): return render.index()
@@ -39,7 +40,7 @@ class locallibrary:
 class shoutcastlibrary:
 	def GET(self, search):
 		logging.debug('Request to shoutcast: ' + search);
-		return shoutcast.search(search)
+		return shoutcast.search(search) if search else shoutcast.searchMore() 
 
 if __name__ == "__main__":
 	app.run()
