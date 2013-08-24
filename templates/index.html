@@ -25,13 +25,17 @@
 		jQuery("#searchShoutcast").keyup(function(evt) {
 			if(evt.keyCode == 13) 
 			{
+				document.activeElement.blur();
 				jQuery('#shoutcastResult li').remove();
 				searchAndAppend(false);
 			}
 		});
 
 		jQuery("#stationUrl").keyup(function(evt) {
-			if(evt.keyCode == 13) jQuery.post("current", jQuery("#stationUrl").val());
+			if(evt.keyCode == 13) 
+			{
+				jQuery.post("current", jQuery("#stationUrl").val());
+			}
 		});
 
 		selectLocalLibraryPath();
