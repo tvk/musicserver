@@ -1,4 +1,4 @@
-import os, web, logging, shoutcast, player, threading, gobject
+import os, web, logging, shoutcast, player
         
 urls = (
 	'/', 'index',

@@ -33,7 +33,7 @@ class Player:
 		
 		source = 'souphttpsrc' if url.startswith('http') else 'filesrc';
 		url = self.parse_playlist(url) if source == 'souphttpsrc' and '.pls' in url else url;
-		thePipeline = source + ' location="' + url + '" ! mad ! tee name=t ! queue ! audioconvert ! audiocheblimit mode=low-pass cutoff=40 type=1 ! level interval=5000000 ! fakesink t. ! queue ! volume ! alsasink'
+		thePipeline = source + ' location="' + url + '" ! mad ! tee name=t ! queue ! audioconvert ! audiocheblimit mode=low-pass cutoff=40 type=1 ! level interval=8000000 ! fakesink t. ! queue ! volume ! alsasink'
 		logging.debug(thePipeline)
 
 		self.pipeline = gst.parse_launch(thePipeline)
