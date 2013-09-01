@@ -1,4 +1,4 @@
-import collections, logging, serial
+import collections, logging, serial, threading, time
 
 '''
 Processes messages that are send by the gstreamer level element and sends 
@@ -7,31 +7,76 @@ it them via the serial interface to the arduino
 class BeatControl:
 
 	tty = None 
-	peaks = collections.deque(maxlen=1000)
+	peak = None
 
 	def __init__(self):
 		self.tty = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
+		thread = threading.Thread(target=self.send_bytes)
+		thread.daemon = True
+		thread.start()
 
 	def handle_level_message(self, message):
 		current = message.structure["peak"]
-		peak = reduce(lambda x, y: x + y, current) / len(current)
-#		if peak > -48:
-#		print peak
-		self.peaks.append(peak)
-		localMax = reduce(lambda x, y: x if x < y else y, self.peaks); # i.e. -24.112
-		localMin = reduce(lambda x, y: x if x > y else y, self.peaks); # i.e. -3.1125
-		if (localMax != localMin):
-#			relative = (peak - localMin) / (localMax - localMin)
-			relative = (peak + 40.0) / 40.0
+		self.peak = reduce(lambda x, y: x + y, current) / len(current)
 
+	def send_bytes(self):
+		while True:
 			byte1 = 0
-			byte2 = 1
-			for i in range(6):
-				byte1 += pow(2,i+1) if (relative >= i * 0.1) else 0
-				byte2 += pow(2,i+1) if (relative >= 0.5 + i * 0.1) else 0
-			self.tty.write(chr(byte1))
-			self.tty.write(chr(byte2))
+			byte2 = 0
+			if (self.peak is not None):
+				relative = (self.peak + 40.0) / 30.0
+				self.peak = None;
+#				byte1, byte2 = self.calculate_bytes_horizontally_pulsing_clock(relative);				
+				byte1, byte2 = self.calculate_bytes_vertical_bar(relative);
+			threading.Timer(1.2, self.send_bytes_async, [byte1, byte2]).start()
+			time.sleep(0.05)
 
-	def notify_new_song(self):
-		logging.debug('Clearing latest peaks')
-		self.peaks.clear()
+	def send_bytes_async(self, byte1, byte2):
+		self.tty.write(chr(byte1))
+		self.tty.write(chr(byte2))
+		
+
+	def calculate_bytes_rotating_clock(self, relative):
+		byte1 = 0
+		byte2 = 1			
+		for i in range(6):
+			byte1 += pow(2,i+1) if (relative >= i * 0.1) else 0
+			byte2 += pow(2,i+1) if (relative >= 0.5 + i * 0.1) else 0
+		return byte1, byte2
+
+
+	def calculate_bytes_horizontally_pulsing_clock(self, relative):
+		value = 0
+		if (relative >= 0.2): value += pow(2,1)
+		if (relative >= 0.4): value += pow(2,2) + pow(2,6)
+		if (relative >= 0.6): value += pow(2,3) + pow(2,5)
+		if (relative >= 0.8): value += pow(2,4)
+		return value, 1 + value
+
+
+
+	def calculate_bytes_vertical_bar(self, relative):
+		byte1 = 0
+		byte2 = 1			
+		if (relative >= 1.0/7.0): 
+			byte2 += pow(2,1)
+		if (relative >= 2.0/7.0): 
+			byte1 += pow(2,6)
+			byte2 += pow(2,2)
+		if (relative >= 3.0/7.0): 
+			byte1 += pow(2,5)
+			byte2 += pow(2,3)
+		if (relative >= 4.0/7.0): 
+			byte1 += pow(2,4)
+			byte2 += pow(2,4)
+		if (relative >= 5.0/7.0): 
+			byte1 += pow(2,3)
+			byte2 += pow(2,5)
+		if (relative >= 6.0/7.0): 
+			byte1 += pow(2,2)
+			byte2 += pow(2,6)
+		if (relative >= 7.0/7.0): 
+			byte1 += pow(2,1)
+
+		return byte1, byte2
+

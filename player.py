@@ -33,7 +33,7 @@ class Player:
 		
 		source = 'souphttpsrc' if url.startswith('http') else 'filesrc';
 		url = self.parse_playlist(url) if source == 'souphttpsrc' and '.pls' in url else url;
-		thePipeline = source + ' location="' + url + '" ! mad ! tee name=t ! queue ! audioconvert ! audiocheblimit mode=low-pass cutoff=40 type=1 ! level interval=8000000 ! fakesink t. ! queue ! volume ! alsasink'
+		thePipeline = source + ' location="' + url + '" ! mad ! tee name=t ! queue ! audioconvert ! audiocheblimit mode=low-pass cutoff=40 type=1 ! level interval=16000000 ! fakesink t. ! queue ! volume ! alsasink'
 		logging.debug(thePipeline)
 
 		self.pipeline = gst.parse_launch(thePipeline)
@@ -42,8 +42,6 @@ class Player:
 		bus = self.pipeline.get_bus()
 		bus.add_signal_watch()
 		bus.connect('message', self.handle_level_messages)
-
-		self.beatcontrol.notify_new_song()
 
 	def parse_playlist(self, url):
 		return re.search('File.=(.*)', requests.get(url).text).group(1)
