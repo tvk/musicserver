@@ -8,6 +8,7 @@ class BeatControl:
 
 	tty = None 
 	peak = None
+	running = True
 
 	def __init__(self):
 		self.tty = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
@@ -22,19 +23,26 @@ class BeatControl:
 	def send_bytes(self):
 		while True:
 			byte1 = 0
-			byte2 = 0
+			byte2 = 1
 			if (self.peak is not None):
 				relative = (self.peak + 40.0) / 30.0
 				self.peak = None;
-#				byte1, byte2 = self.calculate_bytes_horizontally_pulsing_clock(relative);				
 				byte1, byte2 = self.calculate_bytes_vertical_bar(relative);
 			threading.Timer(1.2, self.send_bytes_async, [byte1, byte2]).start()
 			time.sleep(0.05)
 
-	def send_bytes_async(self, byte1, byte2):
-		self.tty.write(chr(byte1))
-		self.tty.write(chr(byte2))
+	def send_bytes_async(self, byte1, byte2):		
+		if (self.running):
+			self.tty.write(chr(byte1))
+			self.tty.write(chr(byte2))
 		
+	def stop(self):
+		self.running = False		
+		self.tty.write(chr(0))
+		self.tty.write(chr(1))
+
+	def start(self):
+		self.running = True		
 
 	def calculate_bytes_rotating_clock(self, relative):
 		byte1 = 0

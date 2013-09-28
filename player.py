@@ -16,10 +16,12 @@ class Player:
 		self.pause()
 		self.create_pipeline(url)
 		self.current = url;
+		self.beatcontrol.start()		
 		self.pipeline.set_state(gst.STATE_PLAYING)
 
 	def pause(self):
 		logging.debug('Pausing')
+		self.beatcontrol.stop()		
 		if (self.pipeline is not None):
 			self.pipeline.set_state(gst.STATE_PAUSED)
 
