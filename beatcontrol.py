@@ -10,11 +10,12 @@ class BeatControl:
 	peak = None
 	running = True
 
-	def __init__(self):
-		self.tty = serial.Serial("/dev/ttyACM0", 9600, timeout=1)
-		thread = threading.Thread(target=self.send_bytes)
-		thread.daemon = True
-		thread.start()
+	def __init__(self, config):
+		if (config.has_option('beatcontrol', 'port')):
+			self.tty = serial.Serial(config.get('beatcontrol', 'port'), 9600, timeout=1)
+			thread = threading.Thread(target=self.send_bytes)
+			thread.daemon = True
+			thread.start()
 
 	def handle_level_message(self, message):
 		current = message.structure["peak"]
@@ -32,14 +33,15 @@ class BeatControl:
 			time.sleep(0.05)
 
 	def send_bytes_async(self, byte1, byte2):		
-		if (self.running):
+		if (self.running and self.tty is not None):
 			self.tty.write(chr(byte1))
 			self.tty.write(chr(byte2))
 		
 	def stop(self):
-		self.running = False		
-		self.tty.write(chr(0))
-		self.tty.write(chr(1))
+		self.running = False	
+		if self.tty is not None:
+			self.tty.write(chr(0))
+			self.tty.write(chr(1))
 
 	def start(self):
 		self.running = True		

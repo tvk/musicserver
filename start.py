@@ -1,4 +1,4 @@
-import os, web, logging, shoutcast, player
+import os, web, logging, shoutcast, player, beatcontrol, ConfigParser
         
 urls = (
 	'/', 'index',
@@ -11,8 +11,12 @@ urls = (
 
 musicdir = '/home/thomas/music/storage/'
 
+config = ConfigParser.ConfigParser()
+config.readfp(open('config'))
+
+beatcontrol = beatcontrol.BeatControl(config)
 logging.basicConfig(level=logging.DEBUG)
-player = player.Player()
+player = player.Player(beatcontrol)
 app = web.application(urls, globals())
 render = web.template.render('templates/')
 shoutcast = shoutcast.Shoutcast()

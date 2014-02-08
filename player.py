@@ -4,9 +4,10 @@ gobject.threads_init()
 class Player:
 	pipeline = None
 	current = None
-	beatcontrol = beatcontrol.BeatControl()
+	beatcontrol = None
 
-	def __init__(self):
+	def __init__(self, beatcontrol):
+		self.beatcontrol = beatcontrol
 		g_loop = threading.Thread(target=gobject.MainLoop().run)
 		g_loop.daemon = True
 		g_loop.start()
