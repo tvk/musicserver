@@ -1,0 +1,11 @@
+# Rename this file to config and change the values if necessary
+
+[beatcontrol]
+port: /dev/ttyACM0
+
+[wakeup]
+enabled: true
+days: mon-fri
+hour: 7
+minute: 45
+url: http://mp4.somafm.com:8800 

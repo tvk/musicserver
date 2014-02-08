@@ -10,7 +10,7 @@ class WakeUp:
 		self.config = config
 		self.player = player
 		self.sched.start()
-		if (config.getboolean('wakeup', 'enabled')):
+		if (config.has_section('wakeup') and config.getboolean('wakeup', 'enabled')):
 			self.sched.add_cron_job(self.wakeup, day_of_week=config.get('wakeup', 'days'), hour=config.get('wakeup', 'hour'), minute=config.get('wakeup', 'minute'))
 			print "Wakeup initialized"
 

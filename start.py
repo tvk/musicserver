@@ -40,7 +40,8 @@ class shoutcastlibrary:
 if __name__ == "__main__":
 
 	config = ConfigParser.ConfigParser()
-	config.readfp(open('config'))
+	if (os.path.exists('config')):
+		config.readfp(open('config'))
 	app = web.application(urls, globals())
 	web.theRenderer = web.template.render('templates/')
 	web.theShoutcast = shoutcast.Shoutcast()
