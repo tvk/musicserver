@@ -11,6 +11,7 @@ class Player:
 		g_loop = threading.Thread(target=gobject.MainLoop().run)
 		g_loop.daemon = True
 		g_loop.start()
+		print "Initialized player and started gst daemon thread"
 
 	def play(self, url):
 		logging.debug('Playing ' + url)
