@@ -8,18 +8,39 @@ class BeatControl:
 
 	tty = None 
 	peak = None
+	player = None
 	running = True
 
-	def __init__(self, config):
-		if (config.has_option('beatcontrol', 'port')):
-			self.tty = serial.Serial(config.get('beatcontrol', 'port'), 9600, timeout=1)
-			thread = threading.Thread(target=self.send_bytes)
-			thread.daemon = True
-			thread.start()
+	# A command which is sent when play/pause is pressed
+	CMD__PLAY_PAUSE = 1;
+
+	def __init__(self, config, player):
+		self.player = player
+		if (config.has_option('beatcontrol', 'port')):		
+			self.tty = serial.Serial(config.get('beatcontrol', 'port'), 9600, timeout=None)
+			writeThread = threading.Thread(target=self.send_bytes)
+			writeThread.daemon = True
+			writeThread.start()
+			readThread = threading.Thread(target=self.read_bytes)
+			readThread.daemon = True
+			readThread.start()
 
 	def handle_level_message(self, message):
 		current = message.structure["peak"]
 		self.peak = reduce(lambda x, y: x + y, current) / len(current)
+
+	def read_bytes(self):
+		while True:
+			try:
+				value=int(self.tty.readline())
+				print value
+				if (value == self.CMD__PLAY_PAUSE):
+					self.player.togglePlayPause()
+			except ValueError as e:
+				pass
+			except OSError as e:
+				print e
+				
 
 	def send_bytes(self):
 		while True:

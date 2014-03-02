@@ -45,8 +45,9 @@ if __name__ == "__main__":
 	app = web.application(urls, globals())
 	web.theRenderer = web.template.render('templates/')
 	web.theShoutcast = shoutcast.Shoutcast()
-	beatcontrol = beatcontrol.BeatControl(config)
+	beatcontrol = beatcontrol.BeatControl(config, None)
 	web.thePlayer = player.Player(beatcontrol)
+	beatcontrol.player = web.thePlayer
 	wakeup = wakeup.WakeUp(config, web.thePlayer)
 
 	app.run()

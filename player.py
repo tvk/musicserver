@@ -27,6 +27,24 @@ class Player:
 		if (self.pipeline is not None):
 			self.pipeline.set_state(gst.STATE_PAUSED)
 
+	def togglePlayPause(self):
+		if (self.is_playing()):
+			print "toggling to pause"
+			self.pause()
+		elif (self.is_paused() and self.current is not None):
+			print "toggling to play"
+			self.play(self.current)
+			
+
+	def is_paused(self):
+		return self.pipeline is not None and gst.STATE_PAUSED in self.pipeline.get_state(timeout=1)
+
+	def is_playing(self):
+		if (self.pipeline is None): 
+			return False;
+		states = self.pipeline.get_state(timeout=1)
+		return gst.STATE_PLAYING in states and gst.STATE_PAUSED not in states
+
 	def handle_level_messages(self, bus, message):
 		if (message.structure is not None and message.structure.get_name() == 'level'):
 			self.beatcontrol.handle_level_message(message)

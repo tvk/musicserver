@@ -2,6 +2,13 @@
 // due to the circuit board layout
 int hours[] = {0,1,2,3,4,5,6,7,9,10,11,12};
 
+// The button to toggle play/pause and a timestamp when the 
+// button was pressed the last time
+int ppButton = A5;
+unsigned long ppTimestamp = 0;
+
+// A command to send when play/pause is pressed
+unsigned int CMD__PLAY_PAUSE = 1;
 
 /**
  * Initializes the board
@@ -11,7 +18,9 @@ void setup()
   // Initialize the led's
   for (int i = 0; i < 12; i++)
     pinMode(hours[i], OUTPUT);     
-  //Serial.begin(115200);
+  pinMode(ppButton, INPUT);
+
+  Serial.begin(9600); 
 }
 
 /**
@@ -34,13 +43,26 @@ void setup()
  */
 void loop()
 {
+    // Read operations
     while (Serial.available() > 0) 
     {
       int mask = Serial.read();            
       int offset = (mask % 2 == 0) ? 0 : 6;
       for (int hour = 0; hour < 6; hour++)
           digitalWrite(hours[hour + offset], mask & intPow(2,1 + hour));
-    }    
+    } 
+    
+    // Write operations
+    if (analogRead(ppButton) > 1000)
+    {
+      unsigned long current = millis();
+      if (ppTimestamp > current || ppTimestamp < current - 100)
+      {
+        // Okay, send a signal to change the mode
+        Serial.println(CMD__PLAY_PAUSE);
+      }
+      ppTimestamp = millis();
+    }
 }
  
 
