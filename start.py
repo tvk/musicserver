@@ -1,5 +1,5 @@
-import os, web, logging, shoutcast, player, beatcontrol, wakeup, ConfigParser
-        
+import os, web, logging, shoutcast, player, beatcontrol, wakeup, remotecontrol, ConfigParser
+
 urls = (
 	'/', 'index',
 	'/current', 'current',
@@ -15,10 +15,10 @@ musicdir = '/home/thomas/music/storage/'
 class index:
 	def GET(self): return web.theRenderer.index()
 
-class current:        
-    def GET(self):
-       	return 'Ok'
-    def POST(self):
+class current:
+	def GET(self):
+	    return 'Ok'
+	def POST(self):
 		return web.thePlayer.play(web.data() if web.data().startswith('http://') else musicdir + '/' + web.data());
 
 class control:
@@ -35,7 +35,7 @@ class locallibrary:
 class shoutcastlibrary:
 	def GET(self, search):
 		logging.debug('Request to shoutcast: ' + search);
-		return web.theShoutcast.search(search) if search else web.theShoutcast.searchMore() 
+		return web.theShoutcast.search(search) if search else web.theShoutcast.searchMore()
 
 if __name__ == "__main__":
 
@@ -49,5 +49,6 @@ if __name__ == "__main__":
 	web.thePlayer = player.Player(beatcontrol)
 	beatcontrol.player = web.thePlayer
 	wakeup = wakeup.WakeUp(config, web.thePlayer)
+	remotecontrol = remotecontrol.RemoteControl(web.thePlayer)
 
 	app.run()

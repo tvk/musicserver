@@ -18,12 +18,12 @@ class Player:
 		self.pause()
 		self.create_pipeline(url)
 		self.current = url;
-		self.beatcontrol.start()		
+		self.beatcontrol.start()
 		self.pipeline.set_state(gst.STATE_PLAYING)
 
 	def pause(self):
 		logging.debug('Pausing')
-		self.beatcontrol.stop()		
+		self.beatcontrol.stop()
 		if (self.pipeline is not None):
 			self.pipeline.set_state(gst.STATE_PAUSED)
 
@@ -34,13 +34,28 @@ class Player:
 		elif (self.is_paused() and self.current is not None):
 			print "toggling to play"
 			self.play(self.current)
-			
+
+	def setVolume(self, volume):
+		if (self.pipeline is not None):
+			# print "Setting volume " + str(volume)
+			self.pipeline.get_by_name("volume").set_property("volume", volume)
+
+	def setTreble(self, level):
+		if (self.pipeline is not None):
+			# print "Setting treble " + str(level)
+			self.pipeline.get_by_name("equalizer").set_property("band2", level)
+
+	def setBass(self, level):
+		if (self.pipeline is not None):
+			# print "Setting bass " + str(level)
+			self.pipeline.get_by_name("equalizer").set_property("band0", level)
+
 
 	def is_paused(self):
 		return self.pipeline is not None and gst.STATE_PAUSED in self.pipeline.get_state(timeout=1)
 
 	def is_playing(self):
-		if (self.pipeline is None): 
+		if (self.pipeline is None):
 			return False;
 		states = self.pipeline.get_state(timeout=1)
 		return gst.STATE_PLAYING in states and gst.STATE_PAUSED not in states
@@ -52,10 +67,10 @@ class Player:
 	def create_pipeline(self, url):
 		if (self.pipeline is not None):
 			self.pipeline.set_state(gst.STATE_NULL)
-		
+
 		source = 'souphttpsrc' if url.startswith('http') else 'filesrc';
 		url = self.parse_playlist(url) if source == 'souphttpsrc' and '.pls' in url else url;
-		thePipeline = source + ' location="' + url + '" ! mad ! tee name=t ! queue ! audioconvert ! audiocheblimit mode=low-pass cutoff=40 type=1 ! level interval=16000000 ! fakesink t. ! queue ! volume ! alsasink'
+		thePipeline = source + ' location="' + url + '" ! mad ! tee name=t ! queue ! audioconvert ! audiocheblimit mode=low-pass cutoff=40 type=1 ! level interval=16000000 ! fakesink t. ! queue ! audioconvert ! equalizer-3bands name=equalizer ! volume name=volume ! alsasink'
 		logging.debug(thePipeline)
 
 		self.pipeline = gst.parse_launch(thePipeline)
