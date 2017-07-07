@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Radio Paradise",
+    "url": "http://stream-uk1.radioparadise.com/mp3-192"
+  },
+  {
+    "name": "N-Joy",
+    "url": "http://ndr-njoy-live.cast.addradio.de/ndr/njoy/live/mp3/128/stream.mp3"
+  },
+  {
+    "name": "NDR 2",
+    "url": "http://ndr-ndr2-hamburg.cast.addradio.de/ndr/ndr2/hamburg/mp3/128/stream.mp3"
+  },
+  {
+    "name": "WDR Cosmo",
+    "url": "http://wdr-cosmo-live.icecast.wdr.de/wdr/cosmo/live/mp3/128/stream.mp3"
+  },
+  {
+    "name": "Deutschlandfunk",
+    "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  },
+  {
+    "name": "Soma FM Lush",
+    "url": "http://ice1.somafm.com/lush-128-mp3"
+  }
+]
