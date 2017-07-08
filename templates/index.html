@@ -39,20 +39,27 @@
 		});
 
 		selectLocalLibraryPath();
-		initRadioStationButtons();
 	});
-
-	function initRadioStationButtons()
-	{
-		jQuery('a.btnPlayRadio').unbind('click');
-		jQuery("a.btnPlayRadio").click(function(evt) {
-			jQuery.post("current", jQuery(evt.target).attr('data-radio-station'));
-		});
-		jQuery("li.btnSearchMore a").click(function(evt) {
-			searchAndAppend(true);
-		});
-	}
 	
+	jQuery.ajax({
+        dataType: "json",
+        url: "/static/radiopresets.json",
+        success: function(data) {
+            for (i = 0; i < data.length; i++) {
+                preset = jQuery("ul#radio-presets").append('<li data-theme="c"><a href="#" class="btnPlayRadio preset-' + i + '">' + data[i].name + '</a></li>');
+                jQuery('.btnPlayRadio.preset-' + i).click({ payload: data[i] }, function(evt) {
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: '/radiopreset',
+                        data: JSON.stringify(evt.data.payload),
+                        contentType: "application/json"
+                    });
+                });
+            }
+            jQuery('ul#radio-presets').listview('refresh');            
+        }
+    });
+
 	function searchAndAppend(more)
 	{
 		jQuery.mobile.loading( 'show', {text: 'Searching...', textVisible: true });
@@ -62,7 +69,6 @@
 				jQuery("#shoutcastResult").append('<li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="' + data[i]['url'] + '">' + data[i]['title'] + '</a></li>');
 			jQuery("#shoutcastResult").append('<li class="btnSearchMore" data-theme="c"><a href="#">More</a></li>');
 			jQuery('#shoutcastResult').listview('refresh');				
-			initRadioStationButtons();
 
 			jQuery.mobile.loading( 'hide');
 		});
@@ -102,14 +108,7 @@
         <div data-role="collapsible-set">
             <div data-role="collapsible" data-collapsed="true">
                 <h3>Internet Radio Presets</h3>
-                <ul data-role="listview" data-divider-theme="b" data-inset="true">
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://stream-uk1.radioparadise.com/mp3-192">Radio Paradise</a></li>
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://ndr-njoy-live.cast.addradio.de/ndr/njoy/live/mp3/128/stream.mp3">N-Joy</a></li>
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://ndr-ndr2-hamburg.cast.addradio.de/ndr/ndr2/hamburg/mp3/128/stream.mp3">NDR 2</a></li>
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://wdr-cosmo-live.icecast.wdr.de/wdr/cosmo/live/mp3/128/stream.mp3">WDR Cosmo</a></li>
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://st01.dlf.de/dlf/01/128/mp3/stream.mp3">Deutschlandfunk</a></li>
-                    <li data-theme="c"><a href="#" class="btnPlayRadio" data-radio-station="http://ice1.somafm.com/lush-128-mp3">Soma FM Lush</a></li>
-                </ul>
+                <ul id="radio-presets" data-role="listview" data-divider-theme="b" data-inset="true"></ul>
             </div>
 
             <div data-role="collapsible" data-collapsed="true">

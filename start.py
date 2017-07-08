@@ -1,8 +1,9 @@
-import os, web, logging, shoutcast, player, beatcontrol, wakeup, remotecontrol, ConfigParser
+import os, web, logging, shoutcast, player, beatcontrol, wakeup, remotecontrol, ConfigParser, json
 
 urls = (
 	'/', 'index',
 	'/current', 'current',
+	'/radiopreset', 'radiopreset',
 	'/control/(play|pause)', 'control',
 	'/level', 'level',
 	'/library/local/(.*)', 'locallibrary',
@@ -20,6 +21,11 @@ class current:
 	    return 'Ok'
 	def POST(self):
 		return web.thePlayer.play(web.data() if web.data().startswith('http://') else musicdir + '/' + web.data());
+
+class radiopreset:
+	def POST(self):
+		data = json.loads(web.data())		
+		return web.theRemoteControl.play(data["name"], data["url"]);
 
 class control:
 	def POST(self, name):
@@ -49,6 +55,6 @@ if __name__ == "__main__":
 	web.thePlayer = player.Player(beatcontrol)
 	beatcontrol.player = web.thePlayer
 	wakeup = wakeup.WakeUp(config, web.thePlayer)
-	remotecontrol = remotecontrol.RemoteControl(web.thePlayer)
+	web.theRemoteControl = remotecontrol.RemoteControl(web.thePlayer)
 
 	app.run()

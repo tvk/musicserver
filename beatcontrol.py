@@ -55,7 +55,6 @@ class BeatControl:
 
 	def send_bytes_async(self, byte1, byte2):		
 		if (self.running and self.tty is not None):
-			#print "send" + str(byte1)  + "," + str(byte2)
 			self.tty.write(chr(byte1))
 			self.tty.write(chr(byte2))
 		

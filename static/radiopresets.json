@@ -8,6 +8,10 @@
     "url": "http://ndr-njoy-live.cast.addradio.de/ndr/njoy/live/mp3/128/stream.mp3"
   },
   {
+    "name": "917 xfm",
+    "url": "http://138.201.252.60/917xfm_128"
+  },
+  {
     "name": "NDR 2",
     "url": "http://ndr-ndr2-hamburg.cast.addradio.de/ndr/ndr2/hamburg/mp3/128/stream.mp3"
   },
