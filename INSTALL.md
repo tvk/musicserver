@@ -19,8 +19,11 @@ iface wlan0 inet dhcp
 
 ### raspi-config
 
-Enable SSH-Server
-Set audio to 3.5mm jack
+* Enable i2c
+* Enable SSH-Server
+* Set audio to 3.5mm jack
+
+... and restart
 
 (SSH-Access should work now).
 
@@ -29,8 +32,8 @@ Set volume to 100%:
 
 # Install packages
 
-`sudo apt-get install python python-webpy python-requests python-gst-1.0 python-gst0.10 python-serial python-apscheduler \
-  git gstreamer1.0-plugins-good screen`
+`sudo apt-get install python python-webpy python-requests python-smbus python-gst-1.0 python-gst0.10 python-serial python-apscheduler \
+  git gstreamer0.10-plugins-good gstreamer0.10-plugins-ugly screen i2c-tools`
   
 # Checkout project
 
