@@ -33,7 +33,6 @@ class Control:
 class RemoteControl:
 
 	bus = None
-	lcd = None
 	player = None
 	
 	volume = None;
@@ -50,7 +49,6 @@ class RemoteControl:
 	def __init__(self, player):
 		self.player = player;
 		self.bus = smbus.SMBus(1)
-		self.lcd = lcddriver.lcd()
 		self.volume = Control(self.bus, 0x41, self.player.setVolume, self.onChangeVolume)
 		self.bass = Control(self.bus, 0x42, self.onUpdateBass, self.onChangeBass)
 		self.treble = Control(self.bus, 0x40, self.onUpdateTreble, self.onChangeTreble)
@@ -61,8 +59,6 @@ class RemoteControl:
 		updateLcdThread = threading.Thread(target=self.updateLcd)
 		updateLcdThread.daemon = True
 		updateLcdThread.start()
-		self.lcd.lcd_clear()
-		self.lcd.lcd_backlight("on");
 
 	def readValues(self):
 		while True:
@@ -77,15 +73,16 @@ class RemoteControl:
 				pass
 			
 	def updateLcd(self):
+		lcd = lcddriver.lcd()
 		while True:
 			if (time.time() + 8 > self.lcdTimeout and self.lcdAltSecondLine is not None):
 				self.lcdSecondLine = self.lcdAltSecondLine 
 			if (time.time() < self.lcdTimeout):
-				self.lcd.lcd_backlight("on")
-				self.lcd.lcd_display_string(time.ctime(), 1)
-				self.lcd.lcd_display_string(self.lcdSecondLine, 2)
+				lcd.lcd_backlight("on")
+				lcd.lcd_display_string(time.ctime(), 1)
+				lcd.lcd_display_string(self.lcdSecondLine, 2)
 			if (time.time() > self.lcdTimeout):
-				self.lcd.lcd_backlight("off")
+				lcd.lcd_backlight("off")
 			time.sleep(0.25)
 
 	def onChangeBass(self, level):
