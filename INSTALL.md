@@ -2,7 +2,7 @@
 
 (Everything based on raspbian)
 
-### Wlan
+# Wlan
 
 Copy this snippet into /etc/network/interfaces (Replaces the 
 previous wlan0 config):
@@ -17,7 +17,7 @@ iface wlan0 inet dhcp
 ```
 ... and restart.
 
-### raspi-config
+# raspi-config
 
 * Enable i2c
 * Enable SSH-Server
@@ -32,9 +32,19 @@ Set volume to 100%:
 
 # Install packages
 
-`sudo apt-get install python python-webpy python-requests python-smbus python-gst-1.0 python-gst0.10 python-serial python-apscheduler \
-  git gstreamer0.10-plugins-good gstreamer0.10-plugins-ugly screen i2c-tools`
-  
+`sudo apt-get update`
+`sudo apt-get install python python-webpy python-requests python-smbus python-gst-1.0 python-gst0.10 python-serial python-apscheduler python-dev python-imaging gstreamer0.10-plugins-good gstreamer0.10-plugins-ugly screen i2c-tools git`
+
+# Configure i2c
+
+Edit /etc/modules:
+`i2c-bcm2708`
+`i2c-dev`
+
+`sudo pip install RPi.GPIO`
+
+... and restart
+
 # Checkout project
 
 `git clone https://github.com/tvk/musicserver.git`
